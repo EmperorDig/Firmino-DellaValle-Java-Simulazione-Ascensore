@@ -1,35 +1,38 @@
-import java.util.Random;
-
 public class Persona {
     private int id;
     private int pianoDestinazione;
     
-    public Persona(int id, int pianoAttuale, int numeroPiani) {
+    public Persona(int id, int pianoDestinazione) {
         this.id = id;
-        this.pianoDestinazione = generaPianoDestinazione(pianoAttuale, numeroPiani);
-    }
-    
-    private int generaPianoDestinazione(int pianoAttuale, int numeroPiani) {
-        Random rand = new Random();
-        int destinazione;
-        do {
-            destinazione = rand.nextInt(numeroPiani) + 1;
-        } while (destinazione == pianoAttuale);
-        return destinazione;
+        this.pianoDestinazione = pianoDestinazione;
     }
     
     public void saliSuAscensore(Ascensore a) {
-        if (a.getPianoCorrente() == this.pianoDestinazione && a.isPorteAperte() && a.aggiungiPersona(this)) {
-            System.out.println("Persona " + id + " è salita sull'ascensore.");
+        if (a.getPianoCorrente().contienePersona(this) && a.isPorteAperte()) {
+            if(a.aggiungiPersona(this)) {
+                a.getPianoCorrente().rimuoviPersonaCoda();
+                System.out.println("Persona " + id + " è salita sull'ascensore.");
+                a.aggiungiPersona(this);
+            }
         }
     }
     
     public void scendiDaAscensore(Ascensore a) {
-        if (a.getPianoCorrente() == this.pianoDestinazione && a.isPorteAperte()) {
-            a.rimuoviPersona(this);
-            System.out.println("Persona " + id + " è scesa dall'ascensore al piano " + pianoDestinazione);
+        if (a.getPianoCorrente().getNumeroPiano() == this.pianoDestinazione && a.isPorteAperte()) {
+            System.out.println("Persona " + id + " è scesa dall'ascensore al piano " + this.pianoDestinazione);
+            
+            a.personeDentro.remove(this);
+
+            if (a.getPianoCorrente().getNumeroPiano() == 0) {
+                System.out.println("Persona " + id + " è uscita definitivamente dal sistema.");
+            } else {
+                a.getPianoCorrente().aggiungiPersonaCoda(this);
+                System.out.println("Persona " + id + " è ora in attesa al piano " + a.getPianoCorrente().getNumeroPiano());
+            }
+            this.pianoDestinazione = 0;
         }
     }
+    
     
     public int getId() {
         return id;

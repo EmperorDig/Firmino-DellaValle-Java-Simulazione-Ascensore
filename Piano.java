@@ -3,6 +3,7 @@ import java.util.ArrayList;
 public class Piano {
     private int numeroPiano;
     private ArrayList<Persona> codaPersone;
+    private int tempoAttesa;
 
     public Piano(int numeroPiano) {
         this.numeroPiano = numeroPiano;
@@ -22,6 +23,14 @@ public class Piano {
 
     public ArrayList<Persona> getCodaPersone() {
         return codaPersone;
+    }
+
+    public int getTempoAttesa() {
+        return tempoAttesa;
+    }
+    
+    public boolean contienePersona(Persona p) {
+        return codaPersone.contains(p);
     }
 
     public int getNumeroPiano() {
