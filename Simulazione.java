@@ -1,4 +1,3 @@
-import java.awt.List;
 import java.util.Scanner;
 
 import javax.swing.SwingUtilities;
@@ -35,5 +34,6 @@ public class Simulazione {
                 new Elevator2DRenderer(ascensori[i]);
             }
         });
+        scanner.close();
     }
 }
