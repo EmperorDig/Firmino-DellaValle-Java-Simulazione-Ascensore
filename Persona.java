@@ -1,49 +1,71 @@
+
+import java.util.Random;
+
 public class Persona {
     private int id;
+    private int pianoPartenza;
     private int pianoDestinazione;
+    public boolean direzioneAlto;
     
-    public Persona(int id, int pianoDestinazione) {
+    public Persona(int id) {
         this.id = id;
-        this.pianoDestinazione = pianoDestinazione;
+        Random r = new Random();
+        direzioneAlto = r.nextBoolean();
+        pianoPartenza = r.nextInt(10);
+        if (pianoPartenza == 0) {
+            direzioneAlto = true;
+        }
+        if (pianoPartenza == 9) {
+            direzioneAlto = false;
+        }
+        if (direzioneAlto) {
+            pianoDestinazione = r.nextInt(9 - pianoPartenza) + pianoPartenza + 1;
+        }
+        else {
+            pianoDestinazione = r.nextInt(pianoPartenza);
+        }
     }
-    
+
     public void saliSuAscensore(Ascensore a) {
         if (a.getPianoCorrente().contienePersona(this) && a.isPorteAperte()) {
             if(a.aggiungiPersona(this)) {
-                a.getPianoCorrente().rimuoviPersonaCoda();
+                a.getPianoCorrente().rimuoviPersonaCoda(this);
                 System.out.println("Persona " + id + " è salita sull'ascensore.");
                 a.aggiungiPersona(this);
             }
-        }
+        }        
     }
     
-    public void scendiDaAscensore(Ascensore a) {
-        if (a.getPianoCorrente().getNumeroPiano() == this.pianoDestinazione && a.isPorteAperte()) {
-            System.out.println("Persona " + id + " è scesa dall'ascensore al piano " + this.pianoDestinazione);
-            
-            a.personeDentro.remove(this);
-
-            if (a.getPianoCorrente().getNumeroPiano() == 0) {
-                System.out.println("Persona " + id + " è uscita definitivamente dal sistema.");
-            } else {
-                a.getPianoCorrente().aggiungiPersonaCoda(this);
-                System.out.println("Persona " + id + " è ora in attesa al piano " + a.getPianoCorrente().getNumeroPiano());
+    public Persona scendiDaAscensore(Ascensore a) {
+        if (a.getPianoCorrente().getNumeroPiano() == pianoDestinazione && a.isPorteAperte()) {
+            a.rimuoviPersona(this);
+            System.out.println("Persona " + id + " è scesa dall'ascensore al piano " + pianoDestinazione + ".");
+            if (pianoDestinazione == 0) {
+                System.out.println("Persona " + id + " è stata cancellata.");
+                return null;
             }
-            this.pianoDestinazione = 0;
         }
+        return this;
     }
-    
-    
-    public int getId() {
-        return id;
-    }
-    
+
     public int getPianoDestinazione() {
         return pianoDestinazione;
     }
-    
+
+    public int getPianoPartenza() {
+        return pianoPartenza;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public boolean getDirezione() {
+        return direzioneAlto;
+    }
+
     @Override
     public String toString() {
-        return "Persona {ID=" + id + ", Destinazione=" + pianoDestinazione + "}";
+        return "Persona {ID=" + id + ", Partenza=" + pianoPartenza + ", Destinazione=" + pianoDestinazione + "}";
     }
 }

@@ -1,6 +1,7 @@
 import java.util.*;
 
 public class Ascensore {
+    private Random random = new Random();
     public ArrayList<Piano> piani;
     private int pianoCorrente;
     private int capienzaMassima;
@@ -32,13 +33,17 @@ public class Ascensore {
         }
         return false;
     }
+    public void rimuoviPersona(Persona p) {
+        personeDentro.remove(p);
+    }
+
     public void rimuoviPersoneArrivate() {
         Iterator<Persona> iterator = personeDentro.iterator();
         while (iterator.hasNext()) {
-            Persona p = iterator.next();
-            if (p.getPianoDestinazione() == pianoCorrente) {
-                getPianoCorrente().aggiungiPersonaCoda(p);
-                iterator.remove(); // Safely remove the element using the iterator
+            Persona persona = iterator.next();
+            if (persona.getPianoDestinazione() == pianoCorrente) {
+                System.out.println("Persona " + persona.getId() + " è scesa al piano: " + pianoCorrente);
+                iterator.remove();
             }
         }
     }
@@ -54,7 +59,6 @@ public class Ascensore {
     public void decidiDirezione() {
         // Se l'ascensore ha persone dentro, gestisci prima loro
         if (!personeDentro.isEmpty()) {
-            // Trova il piano destinazione più vicino nella direzione corrente
             Persona personaDaServire = trovaProssimaPersona();
             if (personaDaServire.getPianoDestinazione() > pianoCorrente) {
                 Salita();
@@ -64,7 +68,7 @@ public class Ascensore {
             return;
         }
     
-        // Se l'ascensore è vuoto, cerca il piano con persone in attesa
+        // Se l'ascensore è vuoto o pieno ma non può far salire nessuno, cerca il piano con persone in attesa
         Piano pianoDaServire = trovaProssimoPianoInAttesa();
     
         if (pianoDaServire != null) {
@@ -76,6 +80,17 @@ public class Ascensore {
         }
     }
     
+    
+    private Piano trovaPianoPrioritario(int threshold) {
+        Piano pianoPrioritario = null;
+        for (Piano piano : piani) {
+            if (piano.getTempoAttesa() >= threshold) {
+                threshold = piano.getTempoAttesa();
+                pianoPrioritario = piano;
+            }
+        }
+        return pianoPrioritario;
+    }
 
     private Persona trovaProssimaPersona() {
         Persona personaDaServire = null;
@@ -108,7 +123,7 @@ public class Ascensore {
         }
     
         return pianoDaServire;
-    }    
+    } 
 
     public Piano getPianoCorrente() {
         return piani.get(pianoCorrente);
@@ -116,6 +131,96 @@ public class Ascensore {
 
     public boolean isPorteAperte() {
         return porteAperte;
+    }
+
+    public void ciclo(int nciclo) {
+        System.out.println("\n=== CICLO " + (nciclo + 1) + " ===");
+    
+        // 1. Generazione casuale di nuove persone
+        if (random.nextBoolean()) {
+            Persona nuovaPersona = new Persona(nciclo);
+            piani.get(nuovaPersona.getPianoPartenza()).aggiungiPersonaCoda(nuovaPersona);
+            System.out.println("Nuova persona al piano " + nuovaPersona.getPianoPartenza() + " con destinazione " + nuovaPersona.getPianoDestinazione());
+        }
+    
+        // 2. Stato dei piani prima del movimento
+        System.out.println(piani);
+    
+        // 3. Simulazione apertura porte, ingresso e uscita persone
+        if (!personeDentro.isEmpty()) {
+            // Gestione delle persone che devono scendere
+            gestisciPersoneCheScendono();
+        }
+        if (personeDentro.size() < capienzaMassima && !getPianoCorrente().getCodaPersone().isEmpty()) {
+            // Gestione delle persone che devono salire
+            apriPorte();
+            gestisciPersoneCheSalgono();
+        }
+    
+        // 4. Chiusura delle porte
+        aggiornaTempoAttesa();
+        System.out.println("L'ascensore sta chiudendo le porte.");
+        chiudiPorte();
+        System.out.println(this);
+    
+        // 5. Determinazione direzione e movimento
+        decidiDirezione();
+        System.out.println("Stato dell'ascensore: " + this);
+        System.out.println("Tempi d'attesa ai piani: ");
+        for (Piano piano : piani) {
+            System.out.println("Piano " + piano.getNumeroPiano() + ": " + piano.getTempoAttesa() + " secondi");
+        }
+        Piano pianoPrioritario = trovaPianoPrioritario(0);
+        if (personeDentro.isEmpty() && pianoPrioritario != null && pianoPrioritario.getTempoAttesa() > 0) {
+            System.out.println("Destinazione dell'ascensore: " + pianoPrioritario.getNumeroPiano() + " con tempo di attesa " + pianoPrioritario.getTempoAttesa() + " secondi");
+        } else if (!personeDentro.isEmpty()) {
+            System.out.println("Destinazione dell'ascensore: " + personeDentro.get(0).getPianoDestinazione());
+        } else {
+            System.out.println("L'ascensore non ha una destinazione");
+        }
+    }
+    
+    private void gestisciPersoneCheScendono() {    
+        Iterator<Persona> iterator = personeDentro.iterator();
+        while (iterator.hasNext()) {
+            Persona p = iterator.next();
+            if (p.getPianoDestinazione() == pianoCorrente) {
+                System.out.println("L'ascensore sta aprendo le porte al piano " + pianoCorrente);
+                apriPorte();
+                rimuoviPersoneArrivate();
+                System.out.println(this);
+                break;
+            }
+        }
+    }
+
+    private void gestisciPersoneCheSalgono() {
+        Iterator<Persona> iterator = getPianoCorrente().getCodaPersone().iterator();
+        while (iterator.hasNext()) {
+            Persona p = iterator.next();
+            if (personeDentro.size() < capienzaMassima &&
+                (personeDentro.isEmpty() || stessaDirezione(p))) {
+                aggiungiPersona(p);
+                System.out.println("Persona " + p.getId() + " è salita nell'ascensore con destinazione " + p.getPianoDestinazione());
+                iterator.remove(); // Rimuove la persona in modo sicuro
+            }
+        }
+    }
+
+    private boolean stessaDirezione(Persona p) {
+        return (p.getDirezione() && personeDentro.get(0).getDirezione()) ||
+               (!p.getDirezione() && !personeDentro.get(0).getDirezione());
+    }
+
+    public void aggiornaTempoAttesa() {
+        for (Piano piano : piani) {
+            if (!piano.getCodaPersone().isEmpty() && !(piano.getNumeroPiano() == pianoCorrente && porteAperte)) {
+                piano.incrementaTempoAttesa();
+            }
+            else if (piano.getNumeroPiano() == pianoCorrente && porteAperte) {
+                piano.resettaTempoAttesa();
+            }
+        }
     }
 
     @Override

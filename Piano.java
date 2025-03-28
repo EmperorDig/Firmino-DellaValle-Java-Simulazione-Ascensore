@@ -1,8 +1,10 @@
+
 import java.util.ArrayList;
 
 public class Piano {
+    
     private int numeroPiano;
-    private ArrayList<Persona> codaPersone;
+    public ArrayList<Persona> codaPersone;
     private int tempoAttesa;
 
     public Piano(int numeroPiano) {
@@ -14,27 +16,38 @@ public class Piano {
         codaPersone.add(p);
     }
 
-    public Persona rimuoviPersonaCoda() {
-        if (!codaPersone.isEmpty()) {
-            return codaPersone.remove(0);
+
+    public Persona rimuoviPersonaCoda(Persona p) {
+        if (codaPersone.contains(p)) {
+            codaPersone.remove(p);
+            return p;
+        } else {
+            return null;
         }
-        return null;
+    }
+
+    public int getNumeroPiano() {
+        return numeroPiano;
     }
 
     public ArrayList<Persona> getCodaPersone() {
         return codaPersone;
     }
 
+    public void incrementaTempoAttesa() {
+        tempoAttesa++;
+    }
+
+    public void resettaTempoAttesa() {
+        tempoAttesa = 0;
+    }
+
     public int getTempoAttesa() {
         return tempoAttesa;
     }
-    
+
     public boolean contienePersona(Persona p) {
         return codaPersone.contains(p);
-    }
-
-    public int getNumeroPiano() {
-        return numeroPiano;
     }
 
     @Override
