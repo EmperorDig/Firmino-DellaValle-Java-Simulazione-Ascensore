@@ -7,19 +7,19 @@ public class Persona {
     private int pianoDestinazione;
     public boolean direzioneAlto;
     
-    public Persona(int id) {
+    public Persona(int id, Ascensore a) {
         this.id = id;
         Random r = new Random();
         direzioneAlto = r.nextBoolean();
-        pianoPartenza = r.nextInt(10);
+        pianoPartenza = r.nextInt(a.piani.size());
         if (pianoPartenza == 0) {
             direzioneAlto = true;
         }
-        if (pianoPartenza == 9) {
+        if (pianoPartenza == a.piani.size() - 1) {
             direzioneAlto = false;
         }
         if (direzioneAlto) {
-            pianoDestinazione = r.nextInt(9 - pianoPartenza) + pianoPartenza + 1;
+            pianoDestinazione = r.nextInt(a.piani.size() - 1 - pianoPartenza) + pianoPartenza + 1;
         }
         else {
             pianoDestinazione = r.nextInt(pianoPartenza);

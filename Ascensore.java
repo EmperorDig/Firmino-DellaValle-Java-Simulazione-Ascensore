@@ -1,12 +1,14 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Ascensore {
-    private Random random = new Random();
+    private int nciclo;
     public ArrayList<Piano> piani;
     private int pianoCorrente;
     private int capienzaMassima;
     public ArrayList<Persona> personeDentro;
     private boolean porteAperte = false;
+    private boolean haApertoPorte = false;
     
     public Ascensore(int capienzaMassima, int numeroPiani) {
         this.piani = new ArrayList<>();
@@ -16,6 +18,7 @@ public class Ascensore {
         this.pianoCorrente = 0;
         this.capienzaMassima = capienzaMassima;
         this.personeDentro = new ArrayList<>();
+        this.nciclo = 0;
     }
 
     public void apriPorte() {
@@ -46,6 +49,14 @@ public class Ascensore {
                 iterator.remove();
             }
         }
+    }
+
+    public int getCapienzaMassima() {
+        return capienzaMassima;
+    }
+
+    public boolean isHaApertoPorte() {
+        return haApertoPorte;
     }
 
     public void Salita() {
@@ -133,15 +144,16 @@ public class Ascensore {
         return porteAperte;
     }
 
-    public void ciclo(int nciclo) {
+    public void ciclo() {
+        haApertoPorte = false;
         System.out.println("\n=== CICLO " + (nciclo + 1) + " ===");
     
         // 1. Generazione casuale di nuove persone
-        if (random.nextBoolean()) {
-            Persona nuovaPersona = new Persona(nciclo);
+        //if (random.nextBoolean()) {
+            Persona nuovaPersona = new Persona(nciclo, this);
             piani.get(nuovaPersona.getPianoPartenza()).aggiungiPersonaCoda(nuovaPersona);
             System.out.println("Nuova persona al piano " + nuovaPersona.getPianoPartenza() + " con destinazione " + nuovaPersona.getPianoDestinazione());
-        }
+        //}
     
         // 2. Stato dei piani prima del movimento
         System.out.println(piani);
@@ -154,6 +166,7 @@ public class Ascensore {
         if (personeDentro.size() < capienzaMassima && !getPianoCorrente().getCodaPersone().isEmpty()) {
             // Gestione delle persone che devono salire
             apriPorte();
+            haApertoPorte = true;
             gestisciPersoneCheSalgono();
         }
     
@@ -178,6 +191,7 @@ public class Ascensore {
         } else {
             System.out.println("L'ascensore non ha una destinazione");
         }
+        nciclo++;
     }
     
     private void gestisciPersoneCheScendono() {    
@@ -187,6 +201,7 @@ public class Ascensore {
             if (p.getPianoDestinazione() == pianoCorrente) {
                 System.out.println("L'ascensore sta aprendo le porte al piano " + pianoCorrente);
                 apriPorte();
+                haApertoPorte = true;
                 rimuoviPersoneArrivate();
                 System.out.println(this);
                 break;
