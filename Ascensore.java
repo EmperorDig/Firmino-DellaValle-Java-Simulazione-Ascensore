@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Iterator;
 
 public class Ascensore {
@@ -9,14 +10,18 @@ public class Ascensore {
     public ArrayList<Persona> personeDentro;
     private boolean porteAperte = false;
     private boolean haApertoPorte = false;
+    private int probabilita = 0;
+    private Random random;
     
-    public Ascensore(int capienzaMassima, int numeroPiani) {
+    public Ascensore(int capienzaMassima, int numeroPiani, int probabilita) {
+        this.random = new Random();
         this.piani = new ArrayList<>();
         for (int i = 0; i < numeroPiani; i++) {
             piani.add(new Piano(i));
         }
         this.pianoCorrente = 0;
         this.capienzaMassima = capienzaMassima;
+        this.probabilita = probabilita;
         this.personeDentro = new ArrayList<>();
         this.nciclo = 0;
     }
@@ -149,11 +154,11 @@ public class Ascensore {
         System.out.println("\n=== CICLO " + (nciclo + 1) + " ===");
     
         // 1. Generazione casuale di nuove persone
-        //if (random.nextBoolean()) {
+        if (random.nextInt(101) <= this.probabilita) {
             Persona nuovaPersona = new Persona(nciclo, this);
             piani.get(nuovaPersona.getPianoPartenza()).aggiungiPersonaCoda(nuovaPersona);
             System.out.println("Nuova persona al piano " + nuovaPersona.getPianoPartenza() + " con destinazione " + nuovaPersona.getPianoDestinazione());
-        //}
+        }
     
         // 2. Stato dei piani prima del movimento
         System.out.println(piani);
@@ -193,6 +198,7 @@ public class Ascensore {
         }
         nciclo++;
     }
+    
     
     private void gestisciPersoneCheScendono() {    
         Iterator<Persona> iterator = personeDentro.iterator();

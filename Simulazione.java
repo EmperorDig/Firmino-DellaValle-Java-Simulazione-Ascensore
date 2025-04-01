@@ -21,10 +21,18 @@ public class Simulazione {
                 System.out.println("Inserisci un valore maggiore di 0.");
             }
         }
+        System.out.println("Inserisci il la probabilita di generazione di una nuova persona (0/100): ");
+        int probabilita = -1;
+        while (probabilita < 0 || probabilita > 100) {
+            probabilita = scanner.nextInt();
+            if ( probabilita < 0 || probabilita > 100) {
+                System.out.println("Inserisci un valore tra 0 e 100.");
+            }
+        }
         
         Ascensore[] ascensori = new Ascensore[n];
         for (int i = 0; i < n; i++) {
-            ascensori[i] = new Ascensore(capienza, 10);
+            ascensori[i] = new Ascensore(capienza, 10, probabilita);
         } // Ascensore con 4 posti e 10 piani
 
 
