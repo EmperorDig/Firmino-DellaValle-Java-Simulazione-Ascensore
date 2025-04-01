@@ -9,6 +9,7 @@ public class Elevator2DRenderer extends JPanel {
     //Immagini e font
     Image personImage = new ImageIcon("./Assets/person.png").getImage();
     Image elevatorImage = new ImageIcon("./Assets/elevator.png").getImage();
+    Image elevatorOpenImage = new ImageIcon("./Assets/elevator-open.png").getImage();
     Font font;
 
     {
@@ -120,9 +121,10 @@ public class Elevator2DRenderer extends JPanel {
             // Mostra visivamente le persone in attesa accanto ai piani
             List<Persona> coda = piani.get(i).getCodaPersone();
             for (int j = 0; j < coda.size(); j++) {
-                int personX = BUILDING_WIDTH + 20 + j * 25;
+                int personX = BUILDING_WIDTH + 20 + j * 35;
                 int personY = y + 10;
                 g.drawImage(personImage, personX, personY, 25, 25, this); // Disegna un cerchio per ogni persona
+                g.drawString(coda.get(j).getId() + "", personX, personY);
             }
         }
 
@@ -130,8 +132,12 @@ public class Elevator2DRenderer extends JPanel {
         int pianoCorrente = ascensore.getPianoCorrente().getNumeroPiano();
         int elevatorY = (piani.size() - 1 - pianoCorrente) * FLOOR_HEIGHT;
         int elevatorX = BUILDING_WIDTH / 2 - ELEVATOR_WIDTH / 2;
-        g.drawImage(elevatorImage, elevatorX, elevatorY, ELEVATOR_WIDTH, ELEVATOR_HEIGHT, this);
-
+        if (!ascensore.isHaApertoPorte()) {
+            g.drawImage(elevatorImage, elevatorX, elevatorY, ELEVATOR_WIDTH, ELEVATOR_HEIGHT, this);
+        }
+        else {
+            g.drawImage(elevatorOpenImage, elevatorX, elevatorY, ELEVATOR_WIDTH, ELEVATOR_HEIGHT, this);
+        }
         // Disegna le persone dentro l'ascensore
         g.setColor(Color.BLACK);
         g.drawString(ascensore.personeDentro.size() + "/" + ascensore.getCapienzaMassima(), elevatorX + ELEVATOR_WIDTH + 10, elevatorY + 25);
@@ -139,7 +145,10 @@ public class Elevator2DRenderer extends JPanel {
         // Disegna lo stato delle porte
         g.setColor(ascensore.isHaApertoPorte() ? Color.GREEN : Color.RED);
         g.drawString(ascensore.isHaApertoPorte() ? "Porte Aperte" : "Porte Chiuse", elevatorX + ELEVATOR_WIDTH + 10, elevatorY + 40);
-
+        
+        g.setColor(Color.BLACK);
+        g.drawString(ascensore.idCoda(), elevatorX + ELEVATOR_WIDTH + 10, elevatorY + 55);
+        
         // Scritte di debug
         g.setColor(Color.BLACK);
         g.drawString("Stato ascensore: " + ascensore, 10, getHeight() - 40);

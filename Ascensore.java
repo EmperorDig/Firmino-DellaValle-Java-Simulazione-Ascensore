@@ -72,6 +72,14 @@ public class Ascensore {
         this.pianoCorrente--;
     }
 
+    public String idCoda() {
+        String str = "";
+        for (int i = 0; i < personeDentro.size(); i++) {
+            str += personeDentro.get(i).getId() + " ";
+        }
+        return str;
+    }
+
     public void decidiDirezione() {
         // Se l'ascensore ha persone dentro, gestisci prima loro
         if (!personeDentro.isEmpty()) {
